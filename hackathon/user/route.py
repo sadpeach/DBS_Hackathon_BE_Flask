@@ -13,7 +13,7 @@ user_blueprint = Blueprint("user_blueprint",__name__)
 
 collection = db["user"]
 
-@user_blueprint.route('/api/v1/healthCheck',methods=['POST'])
+@user_blueprint.route('/api/v1/healthCheck',methods=['GET'])
 def healthCheck():
 
     return jsonify({
