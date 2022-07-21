@@ -9,7 +9,7 @@ jobs:
     name: Setup Google Cloud Account
     runs-on: ubuntu-latest
     env:
-          IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_APPLICATION }}
+      IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_APPLICATION }}
     steps:
 
     # Setup gcloud CLI
