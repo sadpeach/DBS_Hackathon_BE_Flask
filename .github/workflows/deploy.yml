@@ -12,6 +12,9 @@ jobs:
       IMAGE_NAME: gcr.io/${{ secrets.GCP_PROJECT }}/${{ secrets.GCP_APPLICATION }}
     steps:
 
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
     # Setup gcloud CLI
     - name: Login
       uses: 'google-github-actions/auth@v0'
@@ -20,9 +23,6 @@ jobs:
 
     - name: Configure Docker
       run: gcloud auth configure-docker --quiet
-
-    - name: Checkout repository
-      uses: actions/checkout@v2
 
     - name: Build Docker image
       run: docker build . -t $IMAGE_NAME
