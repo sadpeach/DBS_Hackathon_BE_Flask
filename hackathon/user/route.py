@@ -7,7 +7,7 @@ import pymongo
 import os
 from datetime import datetime, timedelta
 from functools import wraps
-from processor import UserProcessor
+from hackathon.user.processor import UserProcessor
 
 user_blueprint = Blueprint("user_blueprint",__name__)
 
