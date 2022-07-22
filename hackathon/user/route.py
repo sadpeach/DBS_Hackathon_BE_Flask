@@ -1,24 +1,29 @@
-from bson import ObjectId
 from flask import Flask, request, jsonify, Blueprint
 from hackathon import db
 import jwt
 import json
-import pymongo
-import os
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from functools import wraps
 from hackathon.user.processor import UserProcessor
 
+from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, JWTManager, get_jwt_identity
+
 user_blueprint = Blueprint("user_blueprint",__name__)
 
-collection = db["user"]
 
-@user_blueprint.route('/api/v1/healthCheck',methods=['GET'])
-def healthCheck():
-
-    return jsonify({
-            "status" : "Healthcheck Success",
-        }), 200
+@user_blueprint.route('/login', methods=['POST'])
+def login():
+    userid = request.json.get("user", None)
+    password = request.json.get("password", None)
+    # check if user exists
+    user_exists = models.User.query.filter_by(Email=userid).first()
+    if user_exists and password=="default": 
+        #access_token = create_access_token(identity=userid)  
+        access_token = create_access_token(identity=user_exists.User_ID)
+        response = {"access_token":access_token}
+        return response, 200
+    return {"msg": "Wrong credentials"}, 401
 
 @user_blueprint.route('/api/v1/login',methods=['POST'])
 def login():
@@ -32,7 +37,9 @@ def login():
             "status" : "SUCCESS",
             "data": json.loads(json.dumps(user,default=str))
         }), 200
-
+    
+@user_blueprint.route('/getCurrency', methods=["GET"])
+def getCurrency():
 
 # @user_blueprint.route('/api/v1/login',methods=['POST'])
 # def login():
