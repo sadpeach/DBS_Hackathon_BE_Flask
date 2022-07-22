@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify, Blueprint,make_response
+from flask import Flask, request, jsonify, Blueprint, make_response
+import py
 from hackathon import db
 import jwt
 import json
@@ -7,47 +8,43 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from functools import wraps
 from hackathon.user.processor import UserProcessor
+from hackathon import dbhelper
+from hackathon import ormclasses
 
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, JWTManager, get_jwt_identity
 
-user_blueprint = Blueprint("user_blueprint",__name__)
 
+user_blueprint = Blueprint("user_blueprint",__name__)
+db = SQLAlchemy()
 
 @user_blueprint.route('/login', methods=['POST'])
 def login():
     userid = request.json.get("user", None)
     password = request.json.get("password", None)
     # check if user exists
-    user_exists = models.User.query.filter_by(Email=userid).first()
-    if user_exists and password=="default": 
-        #access_token = create_access_token(identity=userid)  
+    user_exists = ormclasses.User.query.filter_by(username = userid).first()
+    if user_exists and password =="password":
         access_token = create_access_token(identity=user_exists.User_ID)
-        response = {"access_token":access_token}
+        response = {"access_token": access_token}
         return response, 200
     return {"msg": "Wrong credentials"}, 401
 
-@user_blueprint.route('/api/v1/login',methods=['POST'])
-def login():
-    data = request.get_json()
-    email = data['email']
-    password = data['password']
+@user_blueprint.route('/logout',methods=['POST'])
+def logout():
+    response = jsonify({"msg": "User logged out"})
+    return response
 
-    user =  UserProcessor.getUserByUserNameAndPassword(email,password)
-
-    return jsonify({
-            "status" : "SUCCESS",
-            "data": json.loads(json.dumps(user,default=str))
-        }), 200
     
 @user_blueprint.route('/getCurrency', methods=["GET"])
 def getCurrency():
-    data = []
+    # if request.method =="GET":
+    # else
+    return {"msg": "Currency"}
 
 @user_blueprint.route('/getExchangeRate', methods=["GET"])
 def getExchangeRate():
     exchangeRate = []
     content = {}
-    
     try:
         data = data = db.engine.execute(text('SELECT * FROM multicurrency'));
         if(data != ""):
@@ -63,6 +60,11 @@ def getExchangeRate():
     except (RuntimeError, TypeError, NameError):
         message = jsonify(message='Server Error')
         return make_response(message, 500)
+
+
+    
+    
+
 
 # @user_blueprint.route('/api/v1/login',methods=['POST'])
 # def login():
