@@ -1,6 +1,7 @@
 import hackathon.ormclasses as orc
 from hackathon.ormclasses import User
 import hackathon.dbhelper as dbh
+from hackathon.dbcreds import ENGINE_STR
 
 from sqlalchemy.orm import sessionmaker
 
@@ -11,4 +12,4 @@ user : User|None = session.query(User)\
         .filter_by(username = 'user101')\
         .first()
 
-print(f'{user.username}, {user.password}')
+print(ENGINE_STR)

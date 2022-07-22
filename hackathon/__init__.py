@@ -4,6 +4,8 @@ from dotenv import load_dotenv, find_dotenv
 
 import os
 import logging
+
+from flask_sqlalchemy import SQLAlchemy
 # import pymongo
 # from pymongo.errors import DuplicateKeyError, OperationFailure
 # from bson.objectid import ObjectId
@@ -15,7 +17,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 CORS(app)
-
+db = SQLAlchemy(app)
 # print("DB_URL:",os.environ.get("DB_URL"))
 # mongo = pymongo.MongoClient(os.environ.get("DB_URL"))
 # db = pymongo.database.Database(mongo,"dbs_hackathon")

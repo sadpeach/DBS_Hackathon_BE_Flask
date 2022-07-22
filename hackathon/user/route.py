@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, Blueprint, make_response
 import jwt
 import json
 from sqlalchemy import text
+from sqlalchemy.orm import sessionmaker
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from functools import wraps
@@ -10,26 +11,34 @@ from hackathon import dbhelper
 from hackathon import ormclasses
 
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, JWTManager, get_jwt_identity
+from hackathon import db
 
 user_blueprint = Blueprint("user_blueprint",__name__)
-db = SQLAlchemy()
+#db = SQLAlchemy(user_blueprint)
 
 @user_blueprint.route('/login', methods=['POST'])
 def login():
     userid = request.json.get("user", None)
     password = request.json.get("password", None)
+
+    Session = sessionmaker(bind = dbhelper.engine)
+    session = Session()
+
+    user = session.query(ormclasses.User).filter_by(username = userid).filter_by(password = password).first()
+
     # check if user exists
-    user_exists = ormclasses.User.query.filter_by(username = userid).first()
-    if user_exists and password =="password":
-        access_token = create_access_token(identity=user_exists.User_ID)
-        response = {"access_token": access_token}
+    # user_exists = ormclasses.User.query.filter_by(username = userid).first()
+    if user is not None:
+        #access_token = create_access_token(identity=user.id)
+        access_token = 'testaccesstoken'
+        response = {"access_token": access_token, "user_id":user.id}
         return response, 200
     return {"msg": "Wrong credentials"}, 404
 
 @user_blueprint.route('/logout',methods=['POST'])
 def logout():
     response = jsonify({"msg": "User logged out"})
-    return response
+    return response, 200
 
     
 @user_blueprint.route('/getCurrency', methods=["GET"])
@@ -37,17 +46,24 @@ def getCurrency():
     currency = []
     content = {}
     try:
-        data = data = db.engine.execute(text('SELECT * FROM multicurrency'));
-        if(data != ""):
-            for result in data:
-                content = {'wallet_id': result['wallet_id'], 'currency': result['currency'],'amount':result['amount']}
-                currency.append(content)
-                content = {}
-                return make_response(jsonify(currency), 200)
-        else:
+        
+        Session = sessionmaker(bind = dbhelper.engine)
+        session = Session()
+
+        data = session.query(ormclasses.Currency).all()
+
+        if data is None or len(data) == 0:
             message = jsonify(message='No data Found')
             return make_response(message,404)
-    except (RuntimeError, TypeError, NameError):
+
+        for result in data:
+            content = {'wallet_id': result.wallet_id, 'currency': result.currency,'amount':result.amount}
+            currency.append(content)
+            content = {}
+        return make_response(jsonify(currency), 200)
+
+    except (RuntimeError, TypeError, NameError) as e:
+        print(e)
         message = jsonify(message='Server Error')
         return make_response(message, 500)
 
@@ -55,22 +71,22 @@ def getCurrency():
 def getExchangeRate():
     exchangeRate = []
     content = {}
-    try:
-        data = data = db.engine.execute(text('SELECT * FROM multicurrency'));
-        if(data != ""):
-            for result in data:
-                content = {'base_currency': result['base_currency'], 'exchange_currency': result['exchange_currency'],'rate':result['rate']}
-                exchangeRate.append(content)
-                content = {}
-            return make_response(jsonify(exchangeRate),200)
-        else:
-            message = jsonify(message='No data Found')
-            return make_response(message,404)
 
-    except (RuntimeError, TypeError, NameError):
-        message = jsonify(message='Server Error')
-        return make_response(message, 500)
+    Session = sessionmaker(bind = dbhelper.engine)
+    session = Session()
 
+    data = session.query(ormclasses.ExchangeRate).all()
+
+    if data is None or len(data) == 0:
+        message = jsonify(message='No data Found')
+        return make_response(message,404)
+
+    for result in data:
+        content = {'base_currency': result.base_currency, 'exchange_currency': result.exchange_currency,'rate':result.rate}
+        exchangeRate.append(content)
+        content = {}        
+
+    return make_response(jsonify(exchangeRate),200)
 
 # @user_blueprint.route('/api/v1/login',methods=['POST'])
 # def login():

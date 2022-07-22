@@ -1,0 +1,1 @@
+SQLALCHEMY_DATABASE_URI = "mysql://dbmasteruser:c)mXy>ml(^mppU06AxEq(6$(wBpiaX~u@ls-5d10316d4c2b154c1238f6ca9678d73c9337d14d.c5ytruwzr1p7.ap-southeast-1.rds.amazonaws.com:3306/multicurrency"
