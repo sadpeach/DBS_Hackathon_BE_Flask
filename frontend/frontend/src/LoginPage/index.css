@@ -15,9 +15,7 @@ html {
 body {
     min-height: 100vh;
     background-color: pale;
-    background-image: url(JewelWaterfall.jpg);
-    background-repeat: no-repeat;
-    background-size: cover;
+    
 }
 
 .App {

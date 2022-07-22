@@ -3,6 +3,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
+import Container from '@mui/material/Container';
 import { useEffect, useState } from "react";
 import axios from 'axios';
 import { Button } from '@mui/material';
@@ -23,13 +24,14 @@ export default function TransactionForm({wallets, currencies}) {
     };
 
     return (
+        <Container>
         <div>
             <form>
-                <TextField
+                <TextField 
                     id="amount"
-                    label="amount"
-                    type="text"
-                />
+                    label="Amount"
+                    type="text">
+                </TextField>
 
                 <br></br>
                 <br></br>
@@ -69,5 +71,6 @@ export default function TransactionForm({wallets, currencies}) {
 
             </form>
         </div>
+        </Container>
     );
 }

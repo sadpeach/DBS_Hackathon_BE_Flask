@@ -4,10 +4,12 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 
 export default function WalletAccordion({walletName,walletData}) {
   return (
+    <Container>
     <div>
       <Accordion>
         <AccordionSummary
@@ -27,5 +29,6 @@ export default function WalletAccordion({walletName,walletData}) {
         </AccordionDetails>
       </Accordion>
     </div>
+    </Container>
   );
 }

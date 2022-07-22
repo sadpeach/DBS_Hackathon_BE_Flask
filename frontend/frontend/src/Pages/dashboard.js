@@ -72,7 +72,7 @@ export default function Dashboard() {
 
       <br></br>
       {/* create transaction */}
-      CREATE TRANSACTION
+      <h3 color= 'black'>CREATE TRANSACTION</h3>
       <br></br>
       <br></br>
       <br></br>
