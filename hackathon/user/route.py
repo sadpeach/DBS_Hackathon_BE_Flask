@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify, Blueprint, make_response
+from flask import Flask, request, jsonify, Blueprint,make_response
+from hackathon import db
 import jwt
 import json
 from sqlalchemy import text
@@ -6,63 +7,47 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from functools import wraps
 from hackathon.user.processor import UserProcessor
-from hackathon import dbhelper
-from hackathon import ormclasses
 
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, JWTManager, get_jwt_identity
 
 user_blueprint = Blueprint("user_blueprint",__name__)
-db = SQLAlchemy(user_blueprint)
+
 
 @user_blueprint.route('/login', methods=['POST'])
 def login():
     userid = request.json.get("user", None)
     password = request.json.get("password", None)
     # check if user exists
-    user_exists = ormclasses.User.query.filter_by(username = userid).first()
-    if user_exists and password =="password":
+    user_exists = models.User.query.filter_by(Email=userid).first()
+    if user_exists and password=="default": 
+        #access_token = create_access_token(identity=userid)  
         access_token = create_access_token(identity=user_exists.User_ID)
-        response = {"access_token": access_token}
+        response = {"access_token":access_token}
         return response, 200
     return {"msg": "Wrong credentials"}, 401
 
-@user_blueprint.route('/logout',methods=['POST'])
-def logout():
-    response = jsonify({"msg": "User logged out"})
-    return response
+@user_blueprint.route('/api/v1/login',methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data['email']
+    password = data['password']
 
+    user =  UserProcessor.getUserByUserNameAndPassword(email,password)
+
+    return jsonify({
+            "status" : "SUCCESS",
+            "data": json.loads(json.dumps(user,default=str))
+        }), 200
     
-<<<<<<< Updated upstream
 @user_blueprint.route('/getCurrency', methods=["GET"])
 def getCurrency():
-    # if request.method =="GET":
-    # else
-    return {"msg": "Currency"}
-=======
-@user_blueprint.route('/deleteCurrency', methods=["GET"])
-def deleteRec():
-    #Check if method signature is 'POST'
-    if request.method == 'POST':
-        wallet = request.json
-        wallet_id = wallet['id']
-        wallet_exists = ormclasses.Wallet.query.filter_by(id=wallet_id).first()
-        
-        if wallet_exists is None:
-            return {"status": "fail",  "errorMsg": "Wallet does not exist"}
-        else:
-            db.session.query(ormclasses.Currency).filter_by(id=wallet_id).delete()
-            db.session.commit()
-            # check if one wallet has one currency 
-            # if statement here
-            db.session.query(ormclasses.Wallet).filter_by(id=wallet_id).delete()
-            # then commit()
-        return {"status": "success",  "errorMsg": ""}
->>>>>>> Stashed changes
+    data = []
 
 @user_blueprint.route('/getExchangeRate', methods=["GET"])
 def getExchangeRate():
     exchangeRate = []
     content = {}
+    
     try:
         data = data = db.engine.execute(text('SELECT * FROM multicurrency'));
         if(data != ""):
@@ -79,6 +64,28 @@ def getExchangeRate():
         message = jsonify(message='Server Error')
         return make_response(message, 500)
 
+
+@user_blueprint.route('/deleteCurrency', methods=["GET"])
+def deleteRec():
+    #Check if method signature is 'POST'
+    if request.method == 'POST':
+        wallet = request.json
+        wallet_id = wallet['id']
+        wallet_exists = ormclasses.Wallet.query.filter_by(id=wallet_id).first()
+        
+        if wallet_exists is None:
+            return {"status": "fail",  "errorMsg": "Wallet does not exist"}
+        else:
+            db.session.query(ormclasses.Currency).filter_by(id=wallet_id).delete()
+            db.session.commit()
+            # check if one wallet has one currency 
+            # if statement here
+            checkWallet = db.engine.execute(text("SELECT * FROM multicurrency.wallet as w, multicurrency.currency as c WHERE w.id = c.wallet_id AND c.wallet_id = :id"));
+            if checkWallet is None:
+                db.engine.execute(text("DELETE FROM wallet WHERE id = :id"))
+            db.session.query(ormclasses.Wallet).filter_by(id=wallet_id).delete()
+            # then commit()
+        return {"status": "success",  "errorMsg": ""}
 
 # @user_blueprint.route('/api/v1/login',methods=['POST'])
 # def login():
