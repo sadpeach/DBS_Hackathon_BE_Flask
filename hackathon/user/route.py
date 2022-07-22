@@ -1,6 +1,6 @@
 from bson import ObjectId
 from flask import Flask, request, jsonify, Blueprint
-from hackathon import db
+#from hackathon import db
 import jwt
 import json
 import pymongo
@@ -11,7 +11,7 @@ from hackathon.user.processor import UserProcessor
 
 user_blueprint = Blueprint("user_blueprint",__name__)
 
-collection = db["user"]
+#collection = db["user"]
 
 @user_blueprint.route('/api/v1/healthCheck',methods=['GET'])
 def healthCheck():
@@ -32,6 +32,7 @@ def login():
             "status" : "SUCCESS",
             "data": json.loads(json.dumps(user,default=str))
         }), 200
+
 
 
 # @user_blueprint.route('/api/v1/login',methods=['POST'])
