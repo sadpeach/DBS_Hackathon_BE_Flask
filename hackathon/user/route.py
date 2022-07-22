@@ -24,7 +24,7 @@ def login():
         access_token = create_access_token(identity=user_exists.User_ID)
         response = {"access_token": access_token}
         return response, 200
-    return {"msg": "Wrong credentials"}, 401
+    return {"msg": "Wrong credentials"}, 404
 
 @user_blueprint.route('/logout',methods=['POST'])
 def logout():
@@ -34,9 +34,22 @@ def logout():
     
 @user_blueprint.route('/getCurrency', methods=["GET"])
 def getCurrency():
-    # if request.method =="GET":
-    # else
-    return {"msg": "Currency"}
+    currency = []
+    content = {}
+    try:
+        data = data = db.engine.execute(text('SELECT * FROM multicurrency'));
+        if(data != ""):
+            for result in data:
+                content = {'wallet_id': result['wallet_id'], 'currency': result['currency'],'amount':result['amount']}
+                currency.append(content)
+                content = {}
+                return make_response(jsonify(currency), 200)
+        else:
+            message = jsonify(message='No data Found')
+            return make_response(message,404)
+    except (RuntimeError, TypeError, NameError):
+        message = jsonify(message='Server Error')
+        return make_response(message, 500)
 
 @user_blueprint.route('/getExchangeRate', methods=["GET"])
 def getExchangeRate():
