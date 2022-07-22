@@ -58,6 +58,25 @@ def getExchangeRate():
         message = jsonify(message='Server Error')
         return make_response(message, 500)
 
+@user_blueprint.route('/getWallet', methods=["GET"])
+def getWallet():
+    wallet = []
+    content = {}
+    try:
+        data = data = db.engine.execute(text('SELECT * FROM multicurrency'));
+        if(data != ""):
+            for result in data:
+                content = {'id': result['id'], 'user_id': result['user_id'],'name':result['name'], 'currency':result['currency'], 'amount':result['amount']}
+                wallet.append(content)
+                content = {}
+            return make_response(jsonify(wallet),200)
+        else:
+            message = jsonify(message='No data Found')
+            return make_response(message,404)
+
+    except (RuntimeError, TypeError, NameError):
+        message = jsonify(message='Server Error')
+        return make_response(message, 500)
 
 # @user_blueprint.route('/api/v1/login',methods=['POST'])
 # def login():
