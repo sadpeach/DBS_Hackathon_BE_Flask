@@ -13,7 +13,6 @@ from hackathon import ormclasses
 
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, JWTManager, get_jwt_identity
 
-
 user_blueprint = Blueprint("user_blueprint",__name__)
 db = SQLAlchemy()
 
@@ -64,6 +63,7 @@ def getExchangeRate():
 
     
     
+
 
 
 # @user_blueprint.route('/api/v1/login',methods=['POST'])
