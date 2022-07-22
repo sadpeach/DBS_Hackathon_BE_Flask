@@ -17,7 +17,7 @@ app = Flask(__name__)
 CORS(app)
 
 mongo = pymongo.MongoClient(os.environ.get("DB_URL"))
-db = pymongo.database.Database(mongo,"hackathon")
+db = pymongo.database.Database(mongo,"dbs_hackathon")
 
 from hackathon.user.route import user_blueprint
 

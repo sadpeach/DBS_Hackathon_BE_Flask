@@ -20,6 +20,19 @@ def healthCheck():
             "status" : "Healthcheck Success",
         }), 200
 
+@user_blueprint.route('/api/v1/login',methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data['email']
+    password = data['password']
+
+    user =  UserProcessor.getUserByUserNameAndPassword(email,password)
+
+    return jsonify({
+            "status" : "SUCCESS",
+            "data": json.loads(json.dumps(user,default=str))
+        }), 200
+
 
 # @user_blueprint.route('/api/v1/login',methods=['POST'])
 # def login():
