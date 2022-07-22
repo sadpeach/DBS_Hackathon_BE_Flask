@@ -72,3 +72,19 @@ class Transaction(Base):
     created_by = Column(String(255)) #shouldnt this be user primary key?
     updated_at = Column(DateTime, onupdate = func.now())
     updated_by = Column(String(255))
+
+    def __init__(self, wallet_id, \
+        debit_id, debit_currency, debit_amount, \
+        credit_id, credit_currency, credit_amount, \
+        description, created_by, updated_by):
+
+        self.wallet_id = wallet_id
+        self.debit_id = debit_id
+        self.debit_currency = debit_currency
+        self.debit_amount = debit_amount
+        self.credit_id = credit_id
+        self.credit_currency = credit_currency
+        self.credit_amount = credit_amount
+        self.description = description
+        self.created_by = created_by
+        self.updated_by = updated_by

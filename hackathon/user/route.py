@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from functools import wraps
 from hackathon.user.processor import UserProcessor
 from hackathon import dbhelper
+from hackathon.dbhelper import engine
+from sqlalchemy.orm import sessionmaker
 from hackathon import ormclasses
 
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, JWTManager, get_jwt_identity
@@ -43,7 +45,7 @@ def getExchangeRate():
     exchangeRate = []
     content = {}
     try:
-        data = data = db.engine.execute(text('SELECT * FROM multicurrency'));
+        data = data = db.engine.execute(text('SELECT * FROM multicurrency'))
         if(data != ""):
             for result in data:
                 content = {'base_currency': result['base_currency'], 'exchange_currency': result['exchange_currency'],'rate':result['rate']}
@@ -57,6 +59,74 @@ def getExchangeRate():
     except (RuntimeError, TypeError, NameError):
         message = jsonify(message='Server Error')
         return make_response(message, 500)
+
+@user_blueprint.route('/createNewTransaction', methods=['POST'])
+def create_new_transaction():
+    content : dict = request.get_json()   # type: ignore
+
+    for k in [\
+        'wallet_id', 'debit_id', 'debit_currency', 'debit_amount', 'credit_id', 'credit_currency', 'credit_amount',
+        'description']:
+        if k not in content:
+            return jsonify({
+                'err' : f'JSON key {k} not found'
+            }), 400
+    
+    ''' created_by, updated_by'''
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    # validate that wallet exists
+    wallet_id = content['wallet_id']
+    wallet = session.query(ormclasses.Wallet)\
+        .filter_by(id = content['wallet_id'])\
+        .first()
+
+    if wallet is None:
+        return jsonify({'err' : f'Wallet {wallet_id} is not found'}), 400
+
+    # ensure both currencies EXIST before proceeding
+
+    credit_curr = session.query(ormclasses.Currency)\
+        .filter_by(id = content['credit_id'])\
+        .first()
+
+    if credit_curr is None:
+            return jsonify({'err' : f'Currency {credit_curr.id} is not found'}), 400
+
+    debit_curr = session.query(ormclasses.Currency)\
+        .filter_by(id = content['credit_id'])\
+        .first()
+
+    if debit_curr is None:
+            return jsonify({'err' : f'Currency {debit_curr.id} is not found'}), 400
+    
+    session.query(ormclasses.Currency)\
+        .filter_by(id = credit_curr.id)\
+        .update({ormclasses.Currency.amount : ormclasses.Currency.amount - content['credit_amount']})
+
+    session.query(ormclasses.Currency)\
+        .filter_by(id = debit_curr.id)\
+        .update({ormclasses.Currency.amount : ormclasses.Currency.amount + content['debit_amount']})  
+
+    transaction : ormclasses.Transaction = ormclasses.Transaction(
+        wallet_id= wallet_id,
+        debit_id= content['debit_id'],
+        debit_currency=content['debit_currency'],
+        debit_amount=content['debit_amount'],
+        credit_id= content['credit_id'],
+        credit_currency=content['credit_currency'],
+        credit_amount=content['credit_amount'],
+        description=content['description'],
+        created_by = wallet.user_id,
+        updated_by= wallet.user_id
+    )
+
+    session.add(transaction)
+    session.commit()
+    
+    return jsonify({'err' : 'success'}), 200
 
 
 # @user_blueprint.route('/api/v1/login',methods=['POST'])

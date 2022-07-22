@@ -12,3 +12,5 @@ user : User|None = session.query(User)\
         .first()
 
 print(f'{user.username}, {user.password}')
+
+session.close()
