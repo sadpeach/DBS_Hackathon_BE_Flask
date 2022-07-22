@@ -46,8 +46,12 @@ const Login = () => {
                 value = {pwd}
                 required>
                 </input> 
+                <button>Sign In</button>
             </form>
             <p>
+                Don't have an account yet?
+                <br></br>
+                <a href = "#">Sign Up</a> 
             </p>
         </section>
     )
