@@ -1,7 +1,8 @@
-from flask import Flask, request, jsonify, Blueprint
+from flask import Flask, request, jsonify, Blueprint,make_response
 from hackathon import db
 import jwt
 import json
+from sqlalchemy import text
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 from functools import wraps
@@ -40,6 +41,28 @@ def login():
     
 @user_blueprint.route('/getCurrency', methods=["GET"])
 def getCurrency():
+    data = []
+
+@user_blueprint.route('/getExchangeRate', methods=["GET"])
+def getExchangeRate():
+    exchangeRate = []
+    content = {}
+    
+    try:
+        data = data = db.engine.execute(text('SELECT * FROM multicurrency'));
+        if(data != ""):
+            for result in data:
+                content = {'base_currency': result['base_currency'], 'exchange_currency': result['exchange_currency'],'rate':result['rate']}
+                exchangeRate.append(content)
+                content = {}
+            return make_response(jsonify(exchangeRate),200)
+        else:
+            message = jsonify(message='No data Found')
+            return make_response(message,404)
+
+    except (RuntimeError, TypeError, NameError):
+        message = jsonify(message='Server Error')
+        return make_response(message, 500)
 
 # @user_blueprint.route('/api/v1/login',methods=['POST'])
 # def login():
