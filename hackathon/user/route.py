@@ -1,6 +1,4 @@
 from flask import Flask, request, jsonify, Blueprint, make_response
-import py
-from hackathon import db
 import jwt
 import json
 from sqlalchemy import text
@@ -59,11 +57,6 @@ def getExchangeRate():
     except (RuntimeError, TypeError, NameError):
         message = jsonify(message='Server Error')
         return make_response(message, 500)
-
-
-    
-    
-
 
 
 # @user_blueprint.route('/api/v1/login',methods=['POST'])
