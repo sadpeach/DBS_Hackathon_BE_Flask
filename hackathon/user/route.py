@@ -12,7 +12,7 @@ from hackathon import ormclasses
 from flask_jwt_extended import create_access_token, unset_jwt_cookies, jwt_required, JWTManager, get_jwt_identity
 
 user_blueprint = Blueprint("user_blueprint",__name__)
-db = SQLAlchemy()
+db = SQLAlchemy(user_blueprint)
 
 @user_blueprint.route('/login', methods=['POST'])
 def login():
@@ -32,11 +32,32 @@ def logout():
     return response
 
     
+<<<<<<< Updated upstream
 @user_blueprint.route('/getCurrency', methods=["GET"])
 def getCurrency():
     # if request.method =="GET":
     # else
     return {"msg": "Currency"}
+=======
+@user_blueprint.route('/deleteCurrency', methods=["GET"])
+def deleteRec():
+    #Check if method signature is 'POST'
+    if request.method == 'POST':
+        wallet = request.json
+        wallet_id = wallet['id']
+        wallet_exists = ormclasses.Wallet.query.filter_by(id=wallet_id).first()
+        
+        if wallet_exists is None:
+            return {"status": "fail",  "errorMsg": "Wallet does not exist"}
+        else:
+            db.session.query(ormclasses.Currency).filter_by(id=wallet_id).delete()
+            db.session.commit()
+            # check if one wallet has one currency 
+            # if statement here
+            db.session.query(ormclasses.Wallet).filter_by(id=wallet_id).delete()
+            # then commit()
+        return {"status": "success",  "errorMsg": ""}
+>>>>>>> Stashed changes
 
 @user_blueprint.route('/getExchangeRate', methods=["GET"])
 def getExchangeRate():
